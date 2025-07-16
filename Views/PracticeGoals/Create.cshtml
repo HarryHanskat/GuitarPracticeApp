@@ -1,0 +1,79 @@
+@model GuitarPracticeApp.Models.PracticeGoal
+
+@{
+    ViewData["Title"] = "Create Practice Goal";
+}
+
+<h1>Create Practice Goal</h1>
+
+<form asp-action="Create">
+    <div class="form-group">
+        <label asp-for="Name" class="control-label">Goal Name</label>
+        <input asp-for="Name" class="form-control" placeholder="e.g., Practice 30 minutes daily" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="Description" class="control-label">Description (optional)</label>
+        <textarea asp-for="Description" class="form-control" rows="2" placeholder="Additional details about your goal..."></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="Type" class="control-label">Goal Type</label>
+        <select asp-for="Type" class="form-control">
+            <option value="TotalPracticeTime">Total Practice Time (minutes)</option>
+            <option value="PracticeFrequency">Practice Frequency (number of sessions)</option>
+        </select>
+        <span asp-validation-for="Type" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="TargetValue" class="control-label">Target Value</label>
+        <input asp-for="TargetValue" class="form-control" type="number" min="1" />
+        <small class="form-text text-muted">For time goals: minutes. For frequency goals: number of sessions.</small>
+        <span asp-validation-for="TargetValue" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="Period" class="control-label">Goal Period</label>
+        <select asp-for="Period" class="form-control" id="periodSelect">
+            <option value="Daily">Daily</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Custom">Custom Date Range</option>
+        </select>
+        <span asp-validation-for="Period" class="text-danger"></span>
+    </div>
+    
+    <div id="customDates" style="display: none;">
+        <div class="form-group">
+            <label asp-for="StartDate" class="control-label">Start Date</label>
+            <input asp-for="StartDate" class="form-control" type="date" />
+            <span asp-validation-for="StartDate" class="text-danger"></span>
+        </div>
+        
+        <div class="form-group">
+            <label asp-for="EndDate" class="control-label">End Date</label>
+            <input asp-for="EndDate" class="form-control" type="date" />
+            <span asp-validation-for="EndDate" class="text-danger"></span>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <input type="submit" value="Create Goal" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+<script>
+    document.getElementById('periodSelect').addEventListener('change', function() {
+        var customDates = document.getElementById('customDates');
+        if (this.value === 'Custom') {
+            customDates.style.display = 'block';
+        } else {
+            customDates.style.display = 'none';
+        }
+    });
+</script>
+

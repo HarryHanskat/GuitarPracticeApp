@@ -1,0 +1,190 @@
+@model GuitarPracticeApp.Models.PracticeGoal
+
+@{
+    ViewData["Title"] = "Goal Details";
+    var currentProgress = ViewBag.CurrentProgress ?? 0;
+    var progressPercentage = ViewBag.ProgressPercentage ?? 0;
+    var isCompleted = currentProgress >= Model.TargetValue;
+    var daysRemaining = (Model.EndDate - DateTime.Today).Days;
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>@Model.Name</h1>
+            <span class="badge @(Model.IsActive ? "badge-success" : "badge-secondary") badge-lg">
+                @(Model.IsActive ? "Active" : "Inactive")
+            </span>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <div class="alert alert-info">
+                <strong>Description:</strong> @Model.Description
+            </div>
+        }
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Goal Progress</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="@(isCompleted ? "text-success" : "text-primary")">
+                            @currentProgress / @Model.TargetValue
+                        </h3>
+                        <p class="text-muted">
+                            @(Model.Type == GoalType.TotalPracticeTime ? "Minutes Practiced" : "Practice Sessions")
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="progress mb-2" style="height: 30px;">
+                            <div class="progress-bar @(isCompleted ? "bg-success" : "bg-primary")" 
+                                 role="progressbar" 
+                                 style="width: @Math.Min(100, progressPercentage)%" 
+                                 aria-valuenow="@currentProgress" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="@Model.TargetValue">
+                                @Math.Min(100, progressPercentage)%
+                            </div>
+                        </div>
+                        @if (isCompleted)
+                        {
+                            <span class="badge badge-success">🎉 Goal Completed!</span>
+                        }
+                        else if (daysRemaining > 0)
+                        {
+                            <small class="text-muted">@daysRemaining days remaining</small>
+                        }
+                        else if (daysRemaining == 0)
+                        {
+                            <small class="text-warning">Goal ends today!</small>
+                        }
+                        else
+                        {
+                            <small class="text-danger">Goal period has ended</small>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5>Goal Details</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Goal Type:</dt>
+                    <dd class="col-sm-9">
+                        @(Model.Type == GoalType.TotalPracticeTime ? "Total Practice Time" : "Practice Frequency")
+                    </dd>
+                    
+                    <dt class="col-sm-3">Target:</dt>
+                    <dd class="col-sm-9">
+                        @Model.TargetValue @(Model.Type == GoalType.TotalPracticeTime ? "minutes" : "sessions")
+                    </dd>
+                    
+                    <dt class="col-sm-3">Period:</dt>
+                    <dd class="col-sm-9">@Model.Period</dd>
+                    
+                    <dt class="col-sm-3">Start Date:</dt>
+                    <dd class="col-sm-9">@Model.StartDate.ToString("MMMM dd, yyyy")</dd>
+                    
+                    <dt class="col-sm-3">End Date:</dt>
+                    <dd class="col-sm-9">@Model.EndDate.ToString("MMMM dd, yyyy")</dd>
+                    
+                    <dt class="col-sm-3">Created:</dt>
+                    <dd class="col-sm-9">@Model.CreatedDate.ToString("MMMM dd, yyyy")</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Stats</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Type == GoalType.TotalPracticeTime)
+                {
+                    var dailyAverage = daysRemaining > 0 ? (Model.TargetValue - currentProgress) / Math.Max(1, daysRemaining) : 0;
+                    var hoursCompleted = currentProgress / 60.0;
+                    var hoursRemaining = Math.Max(0, (Model.TargetValue - currentProgress) / 60.0);
+                    
+                    <p><strong>Hours Completed:</strong> @hoursCompleted.ToString("F1")</p>
+                    <p><strong>Hours Remaining:</strong> @hoursRemaining.ToString("F1")</p>
+                    
+                    @if (daysRemaining > 0 && !isCompleted)
+                    {
+                        <p><strong>Daily Target:</strong> @dailyAverage.ToString("F0") minutes/day</p>
+                    }
+                }
+                else
+                {
+                    var sessionsRemaining = Math.Max(0, Model.TargetValue - currentProgress);
+                    var sessionsPerDay = daysRemaining > 0 ? (double)sessionsRemaining / daysRemaining : 0;
+                    
+                    <p><strong>Sessions Completed:</strong> @currentProgress</p>
+                    <p><strong>Sessions Remaining:</strong> @sessionsRemaining</p>
+                    
+                    @if (daysRemaining > 0 && !isCompleted)
+                    {
+                        <p><strong>Sessions/Day Needed:</strong> @sessionsPerDay.ToString("F1")</p>
+                    }
+                }
+                
+                @if (daysRemaining > 0)
+                {
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            @if (isCompleted)
+                            {
+                                <span class="text-success">🎉 You've achieved your goal with @daysRemaining days to spare!</span>
+                            }
+                            else if (progressPercentage >= 75)
+                            {
+                                <span class="text-success">🔥 You're doing great! Keep it up!</span>
+                            }
+                            else if (progressPercentage >= 50)
+                            {
+                                <span class="text-warning">📈 Good progress! You're halfway there!</span>
+                            }
+                            else if (progressPercentage >= 25)
+                            {
+                                <span class="text-primary">💪 Keep going! You've got this!</span>
+                            }
+                            else
+                            {
+                                <span class="text-info">🎯 Time to get started! Every session counts!</span>
+                            }
+                        </small>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Actions</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="ToggleActive" asp-route-id="@Model.Id" method="post" class="mb-2">
+                    <button type="submit" class="btn btn-block @(Model.IsActive ? "btn-warning" : "btn-success")">
+                        @(Model.IsActive ? "Deactivate Goal" : "Activate Goal")
+                    </button>
+                </form>
+                
+                <a asp-controller="PracticeSessions" asp-action="Create" class="btn btn-primary btn-block">
+                    Start Practice Session
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-action="Index" class="btn btn-secondary">Back to Goals</a>
+</div>

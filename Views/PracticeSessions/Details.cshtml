@@ -1,0 +1,57 @@
+@model GuitarPracticeApp.Models.PracticeSession
+
+@{
+    ViewData["Title"] = "Practice Session Details";
+}
+
+<h1>Practice Session - @Model.Date.ToString("yyyy-MM-dd")</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <dl class="row">
+            <dt class="col-sm-4">Duration:</dt>
+            <dd class="col-sm-8">@Model.DurationMinutes minutes</dd>
+            
+            <dt class="col-sm-4">Notes:</dt>
+            <dd class="col-sm-8">@Model.Notes</dd>
+        </dl>
+    </div>
+</div>
+
+<h3>Exercises</h3>
+<p>
+    <a asp-action="AddExercise" asp-route-sessionId="@Model.Id" class="btn btn-success">Add Exercise</a>
+</p>
+
+@if (Model.Exercises.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Exercise</th>
+                <th>Category</th>
+                <th>BPM</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var exercise in Model.Exercises)
+            {
+                <tr>
+                    <td>@exercise.Name</td>
+                    <td>@exercise.Category</td>
+                    <td>@(exercise.Bpm?.ToString() ?? "N/A")</td>
+                    <td>@exercise.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p><em>No exercises recorded for this session.</em></p>
+}
+
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

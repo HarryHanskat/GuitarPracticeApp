@@ -1,0 +1,37 @@
+@model IEnumerable<GuitarPracticeApp.Models.PracticeSession>
+
+@{
+    ViewData["Title"] = "Practice Sessions";
+}
+
+<h1>Practice Sessions</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Start New Session</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Duration</th>
+            <th>Exercises</th>
+            <th>Notes</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var session in Model)
+        {
+            <tr>
+                <td>@session.Date.ToString("yyyy-MM-dd")</td>
+                <td>@session.DurationMinutes min</td>
+                <td>@session.Exercises.Count exercises</td>
+                <td>@(session.Notes?.Length > 50 ? session.Notes.Substring(0, 50) + "..." : session.Notes)</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@session.Id" class="btn btn-sm btn-outline-primary">View Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
